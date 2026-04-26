@@ -1,6 +1,14 @@
 // StarLearn App Logic
 const GROK_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const GROK_MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
+
+const FREE_MODELS = [
+  { id: 'meta-llama/llama-3.1-8b-instruct:free',  label: 'Llama 3.1 8B — Fast & Free' },
+  { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B — Smarter, Free' },
+  { id: 'google/gemma-3-27b-it:free',             label: 'Google Gemma 3 27B — Free' },
+  { id: 'mistralai/mistral-7b-instruct:free',      label: 'Mistral 7B — Fast & Free' },
+  { id: 'deepseek/deepseek-r1-0528:free',          label: 'DeepSeek R1 — Reasoning, Free' },
+  { id: 'qwen/qwen3-8b:free',                      label: 'Qwen 3 8B — Free' },
+];
 
 let state = {
   screen: 'home',
@@ -10,7 +18,8 @@ let state = {
   currentQ: 0,
   score: 0,
   answered: false,
-  apiKey: localStorage.getItem('starlearn_api_key') || ''
+  apiKey: localStorage.getItem('starlearn_api_key') || '',
+  model: localStorage.getItem('starlearn_model') || FREE_MODELS[0].id
 };
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
@@ -223,7 +232,7 @@ Keep it to 3-4 short sentences. Use an example if helpful. Be warm and encouragi
         'X-Title': 'StarLearn'
       },
       body: JSON.stringify({
-        model: GROK_MODEL,
+        model: state.model,
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 200
       })
@@ -245,6 +254,16 @@ Keep it to 3-4 short sentences. Use an example if helpful. Be warm and encouragi
 
 function openSettings() {
   document.getElementById('api-key-input').value = state.apiKey;
+  // populate model dropdown
+  const sel = document.getElementById('model-select');
+  sel.innerHTML = '';
+  FREE_MODELS.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.label;
+    if (m.id === state.model) opt.selected = true;
+    sel.appendChild(opt);
+  });
   document.getElementById('settings-modal').classList.add('open');
 }
 
@@ -254,8 +273,11 @@ function closeSettings() {
 
 function saveSettings() {
   const key = document.getElementById('api-key-input').value.trim();
+  const model = document.getElementById('model-select').value;
   state.apiKey = key;
+  state.model = model;
   localStorage.setItem('starlearn_api_key', key);
+  localStorage.setItem('starlearn_model', model);
   closeSettings();
 }
 

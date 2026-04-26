@@ -323,6 +323,34 @@
     .modal-btn-cancel { background: #f3f4f6; color: #374151; }
     .modal-btn-save { background: #4F46E5; color: white; }
 
+    .settings-section { margin-bottom: 18px; }
+    .settings-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; color: #1e1b4b; }
+    .key-steps {
+      margin: 8px 0 10px 18px;
+      font-size: 0.88rem;
+      color: #374151;
+      line-height: 1.7;
+    }
+    .key-steps a { color: #4F46E5; font-weight: 600; }
+    .key-steps code {
+      background: #f3f4f6;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.85rem;
+    }
+    #model-select {
+      width: 100%;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      outline: none;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    #model-select:focus { border-color: #4F46E5; }
+
     /* ── Stars decoration ── */
     .stars-row {
       display: flex;
@@ -422,8 +450,25 @@
 <div class="modal-overlay" id="settings-modal" onclick="closeSettings()">
   <div class="modal" onclick="event.stopPropagation()">
     <h3>⚙️ Settings</h3>
-    <p>Enter your OpenRouter API key (free at openrouter.ai). It's saved only in this browser — never sent anywhere except directly to OpenRouter.</p>
-    <input type="password" id="api-key-input" placeholder="sk-or-..." />
+
+    <div class="settings-section">
+      <div class="settings-label">🔑 OpenRouter API Key</div>
+      <p>All AI hints use <strong>OpenRouter</strong> — free models, no credit card needed.</p>
+      <ol class="key-steps">
+        <li>Go to <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></li>
+        <li>Click <strong>Sign In</strong> (Google or GitHub)</li>
+        <li>Go to <strong>Keys</strong> → <strong>Create Key</strong></li>
+        <li>Copy the key (starts with <code>sk-or-</code>) and paste below</li>
+      </ol>
+      <input type="password" id="api-key-input" placeholder="sk-or-v1-..." />
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">🤖 AI Tutor Model</div>
+      <p>All models below are <strong>100% free</strong> on OpenRouter. Smarter models may be slower.</p>
+      <select id="model-select"></select>
+    </div>
+
     <div class="modal-actions">
       <button class="modal-btn modal-btn-cancel" onclick="closeSettings()">Cancel</button>
       <button class="modal-btn modal-btn-save" onclick="saveSettings()">Save</button>
