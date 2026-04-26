@@ -1,6 +1,6 @@
 // StarLearn App Logic
-const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
-const GROK_MODEL = 'grok-3-mini';
+const GROK_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const GROK_MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
 
 let state = {
   screen: 'home',
@@ -218,7 +218,9 @@ Keep it to 3-4 short sentences. Use an example if helpful. Be warm and encouragi
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${state.apiKey}`
+        'Authorization': `Bearer ${state.apiKey}`,
+        'HTTP-Referer': 'https://sahirvhora.github.io/starlearn',
+        'X-Title': 'StarLearn'
       },
       body: JSON.stringify({
         model: GROK_MODEL,
