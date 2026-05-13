@@ -43,10 +43,35 @@ function selectSubject(key) {
   renderTopics();
 }
 
-function selectTopic(topicIndex) {
+async function selectTopic(topicIndex) {
   const subjectData = QUESTIONS[state.subject];
   state.topic = subjectData.topics[topicIndex];
-  state.questions = shuffle([...state.topic.questions]);
+  state.topicIndex = topicIndex;
+
+  // Show loading indicator on the clicked topic button
+  const topicBtns = document.querySelectorAll('.topic-btn');
+  const clickedBtn = topicBtns[topicIndex];
+  const originalHTML = clickedBtn ? clickedBtn.innerHTML : null;
+  if (clickedBtn) clickedBtn.textContent = '⏳ Loading...';
+
+  let questions = null;
+  try {
+    questions = await fetchOTDBQuestions(state.topic.name, state.subject);
+  } catch (e) {
+    questions = null;
+  }
+
+  // Restore button text
+  if (clickedBtn && originalHTML !== null) clickedBtn.innerHTML = originalHTML;
+
+  if (questions && questions.length >= 5) {
+    state.questions = shuffle(questions);
+    state.questionsSource = 'otd';
+  } else {
+    state.questions = shuffle([...state.topic.questions]);
+    state.questionsSource = 'builtin';
+  }
+
   state.currentQ = 0;
   state.score = 0;
   state.answered = false;
@@ -63,6 +88,9 @@ function renderHome() {
     const card = document.createElement('div');
     card.className = 'subject-card';
     card.style.background = subj.color;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('onkeydown', "if(event.key==='Enter'||event.key===' '){this.click()}");
     card.onclick = () => selectSubject(key);
 
     const best = getBestScore(key);
@@ -101,14 +129,17 @@ function renderQuestion() {
   const subj = QUESTIONS[state.subject];
   const q = state.questions[state.currentQ];
   const total = state.questions.length;
-  const progress = ((state.currentQ) / total) * 100;
+  const progress = ((state.currentQ + 1) / total) * 100;
 
   document.getElementById('quiz-header-color').style.background = subj.color;
   document.getElementById('quiz-subject-label').textContent = `${subj.icon} ${subj.label} — ${state.topic.name}`;
-  document.getElementById('quiz-progress-bar').style.width = progress + '%';
-  document.getElementById('quiz-progress-bar').style.background = subj.color;
+  const progressBar = document.getElementById('quiz-progress-bar');
+  progressBar.style.width = progress + '%';
+  progressBar.setAttribute('aria-valuenow', Math.round(progress));
+  progressBar.style.background = subj.color;
   document.getElementById('quiz-counter').textContent = `Question ${state.currentQ + 1} of ${total}`;
-  document.getElementById('quiz-score').textContent = `Score: ${state.score}`;
+  document.getElementById('quiz-score').textContent = `Score: ${state.score}/${state.currentQ + 1}`;
+  document.getElementById('quiz-source').textContent = state.questionsSource === 'otd' ? '✨ Fresh questions' : '📚 Practice set';
   document.getElementById('question-text').textContent = q.q;
 
   const optContainer = document.getElementById('options-container');
@@ -122,7 +153,7 @@ function renderQuestion() {
   });
 
   document.getElementById('hint-area').innerHTML = '';
-  document.getElementById('hint-btn').style.display = 'inline-flex';
+  document.getElementById('hint-btn').style.display = 'none';
   document.getElementById('next-btn').style.display = 'none';
   document.getElementById('hint-btn').style.background = subj.color;
   document.getElementById('next-btn').style.background = subj.color;
@@ -153,6 +184,7 @@ function answerQuestion(selected, btn, color) {
   }
 
   document.getElementById('next-btn').style.display = 'inline-flex';
+  document.getElementById('hint-btn').style.display = 'inline-flex';
 }
 
 function showFeedback(msg, correct) {
@@ -199,18 +231,71 @@ function getResultMessage(pct) {
 }
 
 function retryTopic() {
-  const topicIndex = QUESTIONS[state.subject].topics.indexOf(state.topic);
-  selectTopic(topicIndex);
+  selectTopic(state.topicIndex);
 }
 
 // ─── AI Hint ─────────────────────────────────────────────────────────────────
 
-async function getHint() {
-  if (!state.apiKey) {
-    openSettings();
-    return;
+// Helper: decode HTML entities from OTD API responses
+function decodeHTML(str) {
+  const ta = document.createElement('textarea');
+  ta.innerHTML = str;
+  return ta.textContent;
+}
+
+// Fetch questions from Open Trivia Database
+async function fetchOTDBQuestions(topicName, subjectKey) {
+  // OTD category IDs: 9=General Knowledge, 10=Books, 17=Science, 19=Maths
+  const categoryMap = { maths: 19, science: 17, english: 9 };
+  const catId = categoryMap[subjectKey];
+  if (!catId) return null;
+
+  const url = `https://opentdb.com/api.php?amount=8&type=multiple&category=${catId}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) return null;
+
+    return data.results.map(item => {
+      const correct = decodeHTML(item.correct_answer);
+      const allOptions = shuffle([correct, ...item.incorrect_answers.map(decodeHTML)]);
+      return {
+        q: decodeHTML(item.question),
+        options: allOptions,
+        answer: allOptions.indexOf(correct),
+        hint_topic: topicName
+      };
+    });
+  } catch (e) {
+    console.warn('OTD fetch failed, using built-in questions:', e.message);
+    return null;
   }
+}
+
+// Fetch a math number fact from Numbers API
+async function fetchNumberFact(n) {
+  // Try direct HTTPS first (numbersapi.com supports CORS on HTTPS)
+  try {
+    const res = await fetch(`https://numbersapi.com/${n}/math`);
+    if (res.ok) return await res.text();
+  } catch (e) { /* fall through to proxy */ }
+
+  // Fallback CORS proxy for browsers that block the request
+  try {
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`http://numbersapi.com/${n}/math`)}`;
+    const res = await fetch(proxyUrl);
+    if (res.ok) return await res.text();
+  } catch (e) { /* fall through */ }
+
+  return null;
+}
+
+async function getHint() {
   const q = state.questions[state.currentQ];
+  const isMaths = state.subject === 'maths';
+  const questionText = q.q;
+
   const btn = document.getElementById('hint-btn');
   btn.disabled = true;
   btn.textContent = '⏳ Thinking...';
@@ -218,30 +303,68 @@ async function getHint() {
   const hintArea = document.getElementById('hint-area');
   hintArea.innerHTML = '<div class="hint-loading">Your AI tutor is thinking...</div>';
 
+  // For maths: fetch a number fact in parallel
+  let numberFactPromise = null;
+  if (isMaths) {
+    const numMatch = /\d+/.exec(questionText);
+    if (numMatch) {
+      numberFactPromise = fetchNumberFact(numMatch[0]);
+    }
+  }
+
+  // If no API key and it's maths, just show number fact
+  if (!state.apiKey) {
+    if (isMaths && numberFactPromise) {
+      const fact = await numberFactPromise;
+      if (fact) {
+        hintArea.innerHTML = `<div class="hint-box">🔢 <strong>Fun fact:</strong> ${fact}</div>`;
+      } else {
+        hintArea.innerHTML = `<div class="hint-error">⚠️ No hint available. Add an API key in Settings for AI hints.</div>`;
+      }
+    } else {
+      openSettings();
+      btn.disabled = false;
+      btn.textContent = '💡 Get a Hint';
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = '💡 Get a Hint';
+    return;
+  }
+
   try {
     const prompt = `You are a friendly, encouraging teacher for Year 4 UK primary school students (age 8-9). 
 Explain the concept of "${q.hint_topic}" in simple, easy words a child can understand. 
 Keep it to 3-4 short sentences. Use an example if helpful. Be warm and encouraging. Do not give the answer directly.`;
 
-    const res = await fetch(GROK_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${state.apiKey}`,
-        'HTTP-Referer': 'https://sahirvhora.github.io/starlearn',
-        'X-Title': 'StarLearn'
-      },
-      body: JSON.stringify({
-        model: state.model,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 200
-      })
-    });
+    const [res, numberFact] = await Promise.all([
+      fetch(GROK_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.apiKey}`,
+          'HTTP-Referer': 'https://sahirvhora.github.io/starlearn',
+          'X-Title': 'StarLearn'
+        },
+        body: JSON.stringify({
+          model: state.model,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 200
+        })
+      }),
+      numberFactPromise || Promise.resolve(null)
+    ]);
 
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     const data = await res.json();
     const hint = data.choices[0].message.content;
-    hintArea.innerHTML = `<div class="hint-box">💡 <strong>Hint from your tutor:</strong><br>${hint}</div>`;
+
+    let hintHTML = '';
+    if (isMaths && numberFact) {
+      hintHTML += `<div class="hint-box">🔢 <strong>Fun fact:</strong> ${numberFact}</div>`;
+    }
+    hintHTML += `<div class="hint-box">💡 <strong>Hint from your tutor:</strong><br>${hint}</div>`;
+    hintArea.innerHTML = hintHTML;
   } catch (e) {
     hintArea.innerHTML = `<div class="hint-error">⚠️ Couldn't load hint. Check your API key in Settings.</div>`;
   }
@@ -265,10 +388,27 @@ function openSettings() {
     sel.appendChild(opt);
   });
   document.getElementById('settings-modal').classList.add('open');
+  // Move focus to first focusable element
+  const modal = document.querySelector('#settings-modal .modal');
+  const firstFocusable = modal.querySelector('input, button, select, [tabindex]');
+  if (firstFocusable) firstFocusable.focus();
+  // Escape key listener
+  document._settingsEscHandler = function(e) {
+    if (e.key === 'Escape') closeSettings();
+  };
+  document.addEventListener('keydown', document._settingsEscHandler);
 }
 
 function closeSettings() {
   document.getElementById('settings-modal').classList.remove('open');
+  // Remove escape listener
+  if (document._settingsEscHandler) {
+    document.removeEventListener('keydown', document._settingsEscHandler);
+    document._settingsEscHandler = null;
+  }
+  // Return focus to settings trigger button
+  const settingsBtn = document.querySelector('.header-btn[onclick="openSettings()"]');
+  if (settingsBtn) settingsBtn.focus();
 }
 
 function saveSettings() {
@@ -296,7 +436,7 @@ function getBestScore(subjectKey) {
   const subScores = scores[subjectKey];
   if (!subScores || Object.keys(subScores).length === 0) return null;
   const vals = Object.values(subScores);
-  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  return Math.max(...vals);
 }
 
 function getTopicBest(subjectKey, topicIndex) {

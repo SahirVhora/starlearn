@@ -409,24 +409,25 @@
       <div class="quiz-meta">
         <span id="quiz-subject-label"></span>
         <span id="quiz-score"></span>
+        <span id="quiz-source" style="font-size:0.75rem;opacity:0.7;margin-left:auto;"></span>
       </div>
       <div id="quiz-counter" style="font-size:0.85rem;opacity:0.8;margin-bottom:8px;"></div>
       <div class="progress-bar-bg">
-        <div class="progress-bar" id="quiz-progress-bar" style="width:0%"></div>
+        <div class="progress-bar" id="quiz-progress-bar" style="width:0%" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Quiz progress"></div>
       </div>
     </div>
 
     <div class="question-card">
       <div id="question-text"></div>
       <div class="options-container" id="options-container"></div>
-      <div class="feedback" id="feedback-msg"></div>
+      <div class="feedback" id="feedback-msg" aria-live="polite" aria-atomic="true"></div>
     </div>
 
     <div class="quiz-actions">
       <button class="action-btn" id="hint-btn" onclick="getHint()">💡 Get a Hint</button>
       <button class="action-btn" id="next-btn" onclick="nextQuestion()" style="display:none">Next →</button>
     </div>
-    <div class="hint-area" id="hint-area"></div>
+    <div class="hint-area" id="hint-area" aria-live="polite"></div>
   </div>
 </div>
 
