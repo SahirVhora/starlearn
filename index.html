@@ -53,6 +53,18 @@
       transition: background 0.2s;
     }
     .header-btn:hover { background: rgba(255,255,255,0.3); }
+    .header-btn.active { background: rgba(255,255,255,0.4); border-color: white; font-weight: 700; }
+
+    /* ── 11+ Mode ── */
+    .mode-11plus .header { background: linear-gradient(90deg, #D97706, #EA580C); box-shadow: 0 4px 12px rgba(217,119,6,0.3); }
+    .mode-11plus .home-welcome h1 { background: linear-gradient(90deg, #D97706, #EA580C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .mode-11plus .back-btn { color: #D97706; }
+    .mode-11plus .option-btn:hover:not(:disabled) { border-color: #D97706; background: #fff7ed; }
+    .mode-11plus .option-btn.correct { background: #dcfce7; border-color: #16a34a; }
+    .mode-11plus .option-btn.wrong { background: #fee2e2; border-color: #dc2626; }
+    .mode-11plus .action-btn { background: #D97706; }
+    .mode-11plus .modal-btn-save { background: #D97706; }
+    .mode-11plus .key-steps a { color: #D97706; }
 
     /* ── Screens ── */
     .screen { display: none; }
@@ -380,6 +392,8 @@
 <div class="header">
   <div class="header-logo"><span>⭐</span> StarLearn</div>
   <div class="header-right">
+    <button class="header-btn active" id="btn-starlearn" onclick="setMode('starlearn')">⭐ StarLearn</button>
+    <button class="header-btn" id="btn-11plus" onclick="setMode('11plus')">🎓 11+ Prep</button>
     <button class="header-btn" onclick="goHome()">🏠 Home</button>
     <button class="header-btn" onclick="openSettings()">⚙️ Settings</button>
   </div>
@@ -484,6 +498,7 @@
 </div>
 
 <script src="questions.js"></script>
+<script src="questions-11plus.js"></script>
 <script src="app.js"></script>
   <script src="../../personal-command-center/shared-nav.js"></script>
 </body>

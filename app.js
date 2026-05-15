@@ -1,6 +1,21 @@
 // StarLearn App Logic
 const GROK_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
+let currentMode = localStorage.getItem('starlearn_mode') || 'starlearn';
+const STARLEARN_SUBJECTS = ['maths', 'english', 'science'];
+const ELEVENPLUS_SUBJECTS = ['maths11', 'english11', 'verbal', 'nonverbal'];
+
+function setMode(mode) {
+  currentMode = mode;
+  localStorage.setItem('starlearn_mode', mode);
+  document.getElementById('btn-starlearn').classList.toggle('active', mode === 'starlearn');
+  document.getElementById('btn-11plus').classList.toggle('active', mode === '11plus');
+  document.body.classList.toggle('mode-11plus', mode === '11plus');
+  document.querySelector('.header-logo').innerHTML = mode === '11plus' ? '<span>🎓</span> 11+ Prep' : '<span>⭐</span> StarLearn';
+  document.title = mode === '11plus' ? '11+ Prep — Free Grammar School Practice' : 'StarLearn ⭐ — Year 4-6 Learning Platform';
+  goHome();
+}
+
 const FREE_MODELS = [
   { id: 'meta-llama/llama-3.1-8b-instruct:free',  label: 'Llama 3.1 8B — Fast & Free' },
   { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B — Smarter, Free' },
@@ -84,7 +99,8 @@ async function selectTopic(topicIndex) {
 function renderHome() {
   const container = document.getElementById('subject-cards');
   container.innerHTML = '';
-  Object.entries(QUESTIONS).forEach(([key, subj]) => {
+  const activeSubjects = currentMode === '11plus' ? ELEVENPLUS_SUBJECTS : STARLEARN_SUBJECTS;
+  Object.entries(QUESTIONS).filter(([key]) => activeSubjects.includes(key)).forEach(([key, subj]) => {
     const card = document.createElement('div');
     card.className = 'subject-card';
     card.style.background = subj.color;
@@ -461,6 +477,14 @@ function shuffle(arr) {
 // ─── Init ────────────────────────────────────────────────────────────────────
 
 window.onload = () => {
+  // Restore saved mode
+  if (currentMode === '11plus') {
+    document.body.classList.add('mode-11plus');
+    document.getElementById('btn-11plus').classList.add('active');
+    document.getElementById('btn-starlearn').classList.remove('active');
+    document.querySelector('.header-logo').innerHTML = '<span>🎓</span> 11+ Prep';
+    document.title = '11+ Prep — Free Grammar School Practice';
+  }
   renderHome();
   showScreen('home');
 };
