@@ -10,6 +10,8 @@
 <meta property="og:image:height" content="640">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://sahirvhora.github.io/starlearn/preview.svg">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="manifest" href="/starlearn/manifest.json">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -507,5 +509,13 @@
   ✏️ <b>Want practice worksheets?</b> Generate custom worksheets at 
   <a href="https://sahirvhora.github.io/worksheet-generator/" style="color:#4F46E5;font-weight:600">Worksheet Generator →</a>
 </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/starlearn/sw.js').catch(err => {
+        console.warn('SW registration failed:', err);
+      });
+    }
+  </script>
 </body>
 </html>

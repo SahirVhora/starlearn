@@ -1,0 +1,21 @@
+{
+  "name": "StarLearn",
+  "short_name": "StarLearn",
+  "description": "Free UK primary school learning platform for Years 4-6",
+  "start_url": "/starlearn/",
+  "scope": "/starlearn/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "categories": ["education"],
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/starlearn/preview.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
