@@ -58,3 +58,13 @@ No server, no build step. Just open the file in any browser.
 ## License
 
 MIT — see [LICENSE](LICENSE)
+
+## Portfolio Fit
+
+StarLearn is best kept as the lightweight daily-practice bridge:
+
+- Use **worksheet-generator** when the goal is printable practice for Years 1-6 or parent-led revision.
+- Use **StarLearn** for short interactive quizzes, AI hints, and daily practice for Years 4-6.
+- Use **11plus-prep** for structured grammar-school exam preparation, regional board alignment, and timed 11+ practice.
+
+The app already links learners to Worksheet Generator for printable practice, so it should remain connected to both tools rather than being merged into one.
