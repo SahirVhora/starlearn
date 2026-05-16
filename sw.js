@@ -1,4 +1,4 @@
-// StarLearn — Service Worker
+// StarLearn - Service Worker
 // Cache-first strategy for full offline support
 
 const CACHE_NAME = 'starlearn-v1';
@@ -42,7 +42,7 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith('http')) return;
 
-  // Skip OpenRouter API calls — always go to network
+  // Skip OpenRouter API calls - always go to network
   if (event.request.url.includes('openrouter.ai')) {
     event.respondWith(fetch(event.request));
     return;

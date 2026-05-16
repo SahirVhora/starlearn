@@ -12,17 +12,17 @@ function setMode(mode) {
   document.getElementById('btn-11plus').classList.toggle('active', mode === '11plus');
   document.body.classList.toggle('mode-11plus', mode === '11plus');
   document.querySelector('.header-logo').innerHTML = mode === '11plus' ? '<span>🎓</span> 11+ Prep' : '<span>⭐</span> StarLearn';
-  document.title = mode === '11plus' ? '11+ Prep — Free Grammar School Practice' : 'StarLearn ⭐ — Year 4-6 Learning Platform';
+  document.title = mode === '11plus' ? '11+ Prep - Free Grammar School Practice' : 'StarLearn ⭐ - Year 4-6 Learning Platform';
   goHome();
 }
 
 const FREE_MODELS = [
-  { id: 'meta-llama/llama-3.1-8b-instruct:free',  label: 'Llama 3.1 8B — Fast & Free' },
-  { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B — Smarter, Free' },
-  { id: 'google/gemma-3-27b-it:free',             label: 'Google Gemma 3 27B — Free' },
-  { id: 'mistralai/mistral-7b-instruct:free',      label: 'Mistral 7B — Fast & Free' },
-  { id: 'deepseek/deepseek-r1-0528:free',          label: 'DeepSeek R1 — Reasoning, Free' },
-  { id: 'qwen/qwen3-8b:free',                      label: 'Qwen 3 8B — Free' },
+  { id: 'meta-llama/llama-3.1-8b-instruct:free',  label: 'Llama 3.1 8B - Fast & Free' },
+  { id: 'meta-llama/llama-3.3-70b-instruct:free', label: 'Llama 3.3 70B - Smarter, Free' },
+  { id: 'google/gemma-3-27b-it:free',             label: 'Google Gemma 3 27B - Free' },
+  { id: 'mistralai/mistral-7b-instruct:free',      label: 'Mistral 7B - Fast & Free' },
+  { id: 'deepseek/deepseek-r1-0528:free',          label: 'DeepSeek R1 - Reasoning, Free' },
+  { id: 'qwen/qwen3-8b:free',                      label: 'Qwen 3 8B - Free' },
 ];
 
 let state = {
@@ -148,7 +148,7 @@ function renderQuestion() {
   const progress = ((state.currentQ + 1) / total) * 100;
 
   document.getElementById('quiz-header-color').style.background = subj.color;
-  document.getElementById('quiz-subject-label').textContent = `${subj.icon} ${subj.label} — ${state.topic.name}`;
+  document.getElementById('quiz-subject-label').textContent = `${subj.icon} ${subj.label} - ${state.topic.name}`;
   const progressBar = document.getElementById('quiz-progress-bar');
   progressBar.style.width = progress + '%';
   progressBar.setAttribute('aria-valuenow', Math.round(progress));
@@ -243,7 +243,7 @@ function getResultMessage(pct) {
   if (pct >= 80) return '🎉 Amazing work! Keep it up!';
   if (pct >= 60) return '👍 Good job! A bit more practice and you\'ll ace it!';
   if (pct >= 40) return '💪 Nice try! Review the topic and try again!';
-  return '📖 Keep practising — you\'ll get there!';
+  return '📖 Keep practising - you\'ll get there!';
 }
 
 function retryTopic() {
@@ -349,8 +349,8 @@ async function getHint() {
   }
 
   try {
-    const prompt = `You are a friendly, encouraging teacher for Year 4 UK primary school students (age 8-9). 
-Explain the concept of "${q.hint_topic}" in simple, easy words a child can understand. 
+    const prompt = `You are a friendly, encouraging teacher for Year 4 UK primary school students (age 8-9).
+Explain the concept of "${q.hint_topic}" in simple, easy words a child can understand.
 Keep it to 3-4 short sentences. Use an example if helpful. Be warm and encouraging. Do not give the answer directly.`;
 
     const [res, numberFact] = await Promise.all([
@@ -483,7 +483,7 @@ window.onload = () => {
     document.getElementById('btn-11plus').classList.add('active');
     document.getElementById('btn-starlearn').classList.remove('active');
     document.querySelector('.header-logo').innerHTML = '<span>🎓</span> 11+ Prep';
-    document.title = '11+ Prep — Free Grammar School Practice';
+    document.title = '11+ Prep - Free Grammar School Practice';
   }
   renderHome();
   showScreen('home');

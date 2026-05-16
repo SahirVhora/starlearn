@@ -1,4 +1,4 @@
-// 11+ Exam Practice questions — integrated into StarLearn
+// 11+ Exam Practice questions - integrated into StarLearn
 // Accessed via mode toggle in header
 const QUESTIONS_11PLUS = {
   maths11: {
@@ -50,7 +50,7 @@ const QUESTIONS_11PLUS = {
           { q: "What is a 'metaphor'?", options: ["A comparison using 'like' or 'as'", "Direct comparison saying one thing IS another", "Repetition of initial sounds", "An exaggerated statement"], answer: 1, hint_topic: "metaphors in English" },
           { q: "What does 'chronological order' mean?", options: ["By importance", "By time sequence", "Alphabetical", "By length"], answer: 1, hint_topic: "chronological sequencing in texts" },
           { q: "Read: 'The wind whispered through the trees.' This is an example of:", options: ["Metaphor", "Simile", "Personification", "Alliteration"], answer: 2, hint_topic: "personification in creative writing" },
-          { q: "What is an 'antonym' of 'generous'?", options: ["Kind", "Wealthy", "Selfish", "Gentle"], answer: 2, hint_topic: "antonyms — opposite meanings" },
+          { q: "What is an 'antonym' of 'generous'?", options: ["Kind", "Wealthy", "Selfish", "Gentle"], answer: 2, hint_topic: "antonyms - opposite meanings" },
         ]
       },
       {
@@ -74,7 +74,7 @@ const QUESTIONS_11PLUS = {
         name: "Word Patterns",
         questions: [
           { q: "Find the missing letter: CAT → DAT, DOG → ?", options: ["EOG", "EPG", "EOH", "EPH"], answer: 2, hint_topic: "letter patterns and codes in verbal reasoning" },
-          { q: "Which word does NOT belong: happy, joyful, sad, cheerful?", options: ["happy", "joyful", "sad", "cheerful"], answer: 2, hint_topic: "odd one out — synonyms and antonyms" },
+          { q: "Which word does NOT belong: happy, joyful, sad, cheerful?", options: ["happy", "joyful", "sad", "cheerful"], answer: 2, hint_topic: "odd one out - synonyms and antonyms" },
           { q: "If BIRD = 2-9-18-4, what is FISH?", options: ["6-9-19-8", "6-9-18-8", "5-9-19-8", "6-10-19-8"], answer: 0, hint_topic: "alphabet position codes" },
           { q: "KNIFE is to CUT as PEN is to:", options: ["INK", "WRITE", "PAPER", "DRAW"], answer: 1, hint_topic: "analogies and word relationships" },
           { q: "Rearrange to form a word: R A E P P →", options: ["PREAP", "PAPER", "REPAP", "PAREP"], answer: 1, hint_topic: "anagrams in verbal reasoning" },
