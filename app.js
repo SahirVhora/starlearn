@@ -228,8 +228,9 @@ function showResults() {
   const total = state.questions.length;
   const pct = Math.round((state.score / total) * 100);
 
-  // Save score
+  // Save score and attempt history
   saveScore(state.subject, state.subject + '_' + state.topic.name, pct);
+  saveAttempt(state.subject, state.topic.name, pct, total);
 
   document.getElementById('result-icon').textContent = subj.icon;
   document.getElementById('result-score').textContent = `${state.score} / ${total}`;
@@ -466,6 +467,58 @@ function getTopicBest(subjectKey, topicIndex) {
   const topic = QUESTIONS[subjectKey].topics[topicIndex];
   const key = subjectKey + '_' + topic.name;
   return subScores[key] !== undefined ? subScores[key] : null;
+}
+
+
+function saveAttempt(subjectKey, topicName, pct, total) {
+  const attempts = JSON.parse(localStorage.getItem('starlearn_attempts') || '[]');
+  attempts.push({ subjectKey, topicName, pct, total, date: new Date().toISOString() });
+  const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+  const trimmed = attempts.filter(a => new Date(a.date).getTime() >= cutoff).slice(-250);
+  localStorage.setItem('starlearn_attempts', JSON.stringify(trimmed));
+}
+
+function openParentReport() {
+  showScreen('report');
+  renderParentReport();
+}
+
+function renderParentReport() {
+  const attempts = JSON.parse(localStorage.getItem('starlearn_attempts') || '[]');
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weekly = attempts.filter(a => new Date(a.date).getTime() >= weekAgo);
+  const source = weekly.length ? weekly : attempts.slice(-10);
+  const avg = source.length ? Math.round(source.reduce((sum, a) => sum + a.pct, 0) / source.length) : 0;
+  const attempted = source.map(a => `${labelForSubject(a.subjectKey)}: ${a.topicName} (${a.pct}%)`);
+  const weak = source.filter(a => a.pct < 70).sort((a, b) => a.pct - b.pct);
+  const next = buildNextActivities(weak, source);
+  document.getElementById('report-subtitle').textContent = weekly.length ? 'Last 7 days, ready to print or save as PDF.' : 'No attempts this week yet, showing recent practice where available.';
+  document.getElementById('report-stats').innerHTML = `
+    <div class="report-stat"><strong>${source.length}</strong><span>topics attempted</span></div>
+    <div class="report-stat"><strong>${avg}%</strong><span>average score</span></div>
+    <div class="report-stat"><strong>${weak.length}</strong><span>weak areas</span></div>
+  `;
+  document.getElementById('report-attempted').innerHTML = attempted.length ? attempted.map(x => `<li>${x}</li>`).join('') : '<li>No completed quizzes yet.</li>';
+  document.getElementById('report-weak').innerHTML = weak.length ? weak.slice(0, 5).map(a => `<li>${labelForSubject(a.subjectKey)}: ${a.topicName} scored ${a.pct}%. Revisit this first.</li>`).join('') : '<li>No weak areas recorded. Keep a balanced mix of practice.</li>';
+  document.getElementById('report-next').innerHTML = next.map(x => `<li>${x}</li>`).join('');
+}
+
+function labelForSubject(subjectKey) {
+  return QUESTIONS[subjectKey] ? QUESTIONS[subjectKey].label : subjectKey;
+}
+
+function buildNextActivities(weak, source) {
+  const chosen = [];
+  weak.slice(0, 3).forEach(a => chosen.push(`Retry ${a.topicName} in ${labelForSubject(a.subjectKey)} and aim for 70% or above.`));
+  const activeSubjects = currentMode === '11plus' ? ELEVENPLUS_SUBJECTS : STARLEARN_SUBJECTS;
+  activeSubjects.forEach(subjectKey => {
+    if (chosen.length >= 5 || !QUESTIONS[subjectKey]) return;
+    const done = new Set(source.filter(a => a.subjectKey === subjectKey).map(a => a.topicName));
+    const topic = QUESTIONS[subjectKey].topics.find(t => !done.has(t.name)) || QUESTIONS[subjectKey].topics[0];
+    if (topic) chosen.push(`Try ${topic.name} in ${labelForSubject(subjectKey)}.`);
+  });
+  while (chosen.length < 5) chosen.push('Complete one short quiz and ask for a hint on any missed question.');
+  return chosen.slice(0, 5);
 }
 
 // ─── Utilities ────────────────────────────────────────────────────────────────

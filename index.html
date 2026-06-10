@@ -388,6 +388,15 @@
       margin-bottom: 20px;
     }
 
+
+    .report-card { background:white;border-radius:20px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+    .report-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:16px 0; }
+    .report-stat { background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px; }
+    .report-stat strong { display:block;font-size:1.4rem;color:#4F46E5; }
+    .report-list { margin:10px 0 0 18px;line-height:1.7;color:#374151; }
+    .print-only { display:none; }
+    @media print { .header, .back-btn, .action-btn:not(.print-keep), #report-actions { display:none !important; } body { background:white; } .screen { display:block; } .screen:not(#screen-report) { display:none !important; } .report-card { box-shadow:none; } .print-only { display:block; } }
+
     @media (max-width: 500px) {
       .home-welcome h1 { font-size: 1.5rem; }
       .subject-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -405,6 +414,7 @@
     <button class="header-btn active" id="btn-starlearn" onclick="setMode('starlearn')">⭐ StarLearn</button>
     <button class="header-btn" id="btn-11plus" onclick="setMode('11plus')">🎓 11+ Prep</button>
     <button class="header-btn" onclick="goHome()">🏠 Home</button>
+    <button class="header-btn" onclick="openParentReport()">🖨️ Parent Report</button>
     <button class="header-btn" onclick="openSettings()">⚙️ Settings</button>
   </div>
 </div>
@@ -472,6 +482,30 @@
       <div class="result-actions">
         <button class="action-btn" id="result-retry" onclick="retryTopic()">🔄 Try Again</button>
         <button class="action-btn" id="result-home" onclick="goHome()">🏠 More Topics</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PARENT REPORT SCREEN -->
+<div id="screen-report" class="screen">
+  <div class="container">
+    <button class="back-btn" onclick="goHome()">← Back</button>
+    <div class="report-card">
+      <div class="stars-row print-only">⭐ StarLearn Weekly Progress ⭐</div>
+      <h2>🖨️ Parent Progress Snapshot</h2>
+      <p id="report-subtitle" style="color:#6b7280;margin-top:6px;"></p>
+      <div class="report-grid" id="report-stats"></div>
+      <h3>Topics attempted this week</h3>
+      <ul class="report-list" id="report-attempted"></ul>
+      <h3>Weak areas to revisit</h3>
+      <ul class="report-list" id="report-weak"></ul>
+      <h3>Next 5 activities</h3>
+      <ol class="report-list" id="report-next"></ol>
+      <div class="result-actions" id="report-actions" style="margin-top:22px;">
+        <button class="action-btn print-keep" style="background:#4F46E5;" onclick="window.print()">Print Report</button>
+        <button class="action-btn" style="background:#6b7280;" onclick="goHome()">Back Home</button>
       </div>
     </div>
   </div>
