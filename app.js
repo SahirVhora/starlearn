@@ -33,9 +33,12 @@ let state = {
   currentQ: 0,
   score: 0,
   answered: false,
-  apiKey: localStorage.getItem('starlearn_api_key') || '',
+  apiKey: sessionStorage.getItem('starlearn_api_key') || '',
   model: localStorage.getItem('starlearn_model') || FREE_MODELS[0].id
 };
+
+// API keys should not persist beyond the browser session.
+localStorage.removeItem('starlearn_api_key');
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
@@ -432,7 +435,8 @@ function saveSettings() {
   const model = document.getElementById('model-select').value;
   state.apiKey = key;
   state.model = model;
-  localStorage.setItem('starlearn_api_key', key);
+  sessionStorage.setItem('starlearn_api_key', key);
+  localStorage.removeItem('starlearn_api_key');
   localStorage.setItem('starlearn_model', model);
   closeSettings();
 }
