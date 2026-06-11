@@ -52,3 +52,18 @@ Security updates are released as patch versions. Subscribe to releases to stay i
 ## License
 
 This security policy is part of the project's MIT license.
+
+StarLearn can request AI hints from OpenRouter using a user-provided API key stored locally in the browser.
+
+## API Keys
+
+- Do not hard-code OpenRouter keys in the repository.
+- Do not paste keys into issues, pull requests, screenshots, or demo videos.
+- Browser-stored keys are intended for personal use. Avoid using them on shared school or library devices.
+- Rotate any key that is accidentally exposed.
+
+## Learner Privacy
+
+- Avoid entering children's full names, school names, addresses, or other identifying details.
+- AI hints should be reviewed by a parent or teacher when accuracy matters.
+- Progress tracking should remain local unless a future backend adds explicit consent and retention controls.

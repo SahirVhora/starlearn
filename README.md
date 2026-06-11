@@ -68,3 +68,13 @@ StarLearn is best kept as the lightweight daily-practice bridge:
 - Use **11plus-prep** for structured grammar-school exam preparation, regional board alignment, and timed 11+ practice.
 
 The app already links learners to Worksheet Generator for printable practice, so it should remain connected to both tools rather than being merged into one.
+
+---
+
+## More free learning tools
+
+- [Year 4 Prep](https://sahirvhora.github.io/year4-prep/) - Free Year 4 SATs practice papers - 36 PDFs, updated weekly
+- [Worksheet Generator](https://sahirvhora.github.io/worksheet-generator/) - Printable SATs-style worksheets - KS1/KS2 Maths, Reading, SPaG
+- [PassMate UK](https://sahirvhora.github.io/passmate-uk/) - Free UK car theory test practice - 304 questions, works offline
+- [11+ Prep](https://sahirvhora.github.io/11plus-prep/) - Free 11+ exam practice - region-specific papers
+- [Nobel Explorer](https://sahirvhora.github.io/nobel-explorer/) - Explore 1,026 Nobel laureates - search, timeline, map, quiz
