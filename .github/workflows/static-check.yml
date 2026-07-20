@@ -27,4 +27,11 @@ jobs:
           test -f README.md
 
       - name: Check JavaScript syntax
-        run: node --check app.js
+        run: |
+          node --check app.js
+          node --check questions.js
+          node --check questions-11plus.js
+          node --check sw.js
+
+      - name: Test application behaviour and question data
+        run: node --test tests/*.test.js
