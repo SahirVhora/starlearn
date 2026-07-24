@@ -36,7 +36,18 @@ for html_file in ROOT.rglob("*.html"):
         if parsed.scheme or parsed.netloc or href.startswith("//"):
             continue
         target = href.split("#", 1)[0].split("?", 1)[0]
-        if target and not (html_file.parent / target).resolve().exists():
+        if not target:
+            continue
+        if target.startswith("/"):
+            # GitHub Pages project sites use /<repo>/... URLs. Resolve those
+            # against the repository root instead of the runner filesystem root.
+            parts = Path(target.lstrip("/")).parts
+            if parts and parts[0] == ROOT.name:
+                parts = parts[1:]
+            target_path = ROOT.joinpath(*parts)
+        else:
+            target_path = html_file.parent / target
+        if not target_path.resolve().exists():
             errors.append(f"Broken local link in {html_file.relative_to(ROOT)}: {href}")
 
 for json_file in ROOT.rglob("*.json"):
