@@ -1,6 +1,8 @@
 import json
+from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from typing import Optional
+from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {".git", "node_modules"}
@@ -11,6 +13,27 @@ def included(path: Path) -> bool:
     return not any(part in EXCLUDED for part in path.parts)
 
 
+class LinkParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.hrefs: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, Optional[str]]]) -> None:
+        for name, value in attrs:
+            if name == "href" and value is not None:
+                self.hrefs.append(value)
+
+    handle_startendtag = handle_starttag
+
+
+def inside_repository(path: Path) -> bool:
+    try:
+        path.relative_to(ROOT.resolve())
+        return True
+    except ValueError:
+        return False
+
+
 for html_file in ROOT.rglob("*.html"):
     if not included(html_file):
         continue
@@ -18,24 +41,19 @@ for html_file in ROOT.rglob("*.html"):
     if "<!doctype html>" not in text.lower():
         errors.append(f"Missing DOCTYPE: {html_file.relative_to(ROOT)}")
 
-    marker = 'href="'
-    start = 0
-    while True:
-        index = text.find(marker, start)
-        if index < 0:
-            break
-        value_start = index + len(marker)
-        value_end = text.find('"', value_start)
-        if value_end < 0:
-            break
-        href = text[value_start:value_end]
-        start = value_end + 1
+    parser = LinkParser()
+    parser.feed(text)
+    for href in parser.hrefs:
         parsed = urlparse(href)
-        if not href or href.startswith(("#", "mailto:", "tel:", "javascript:")):
+        if not href or href.startswith("#") or parsed.scheme.lower() in {
+            "mailto",
+            "tel",
+            "javascript",
+        }:
             continue
         if parsed.scheme or parsed.netloc or href.startswith("//"):
             continue
-        target = href.split("#", 1)[0].split("?", 1)[0]
+        target = unquote(parsed.path)
         if not target:
             continue
         if target.startswith("/"):
@@ -47,7 +65,12 @@ for html_file in ROOT.rglob("*.html"):
             target_path = ROOT.joinpath(*parts)
         else:
             target_path = html_file.parent / target
-        if not target_path.resolve().exists():
+        resolved_target = target_path.resolve()
+        if not inside_repository(resolved_target):
+            errors.append(
+                f"Local link escapes repository in {html_file.relative_to(ROOT)}: {href}"
+            )
+        elif not resolved_target.exists():
             errors.append(f"Broken local link in {html_file.relative_to(ROOT)}: {href}")
 
 for json_file in ROOT.rglob("*.json"):
