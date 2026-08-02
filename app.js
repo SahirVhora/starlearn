@@ -5,15 +5,26 @@ let currentMode = localStorage.getItem('starlearn_mode') || 'starlearn';
 const STARLEARN_SUBJECTS = ['maths', 'english', 'science'];
 const ELEVENPLUS_SUBJECTS = ['maths11', 'english11', 'verbal', 'nonverbal'];
 
+function updateModeUI(mode) {
+  const is11plus = mode === '11plus';
+  document.querySelector('.header-logo').innerHTML = is11plus ? '<span>🎓</span> 11+ Prep' : '<span>⭐</span> StarLearn';
+  document.title = is11plus ? '11+ Prep - Free Grammar School Practice' : 'StarLearn ⭐ - Year 4-6 Learning Platform';
+  const switchInput = document.getElementById('mode-switch');
+  if (switchInput) switchInput.checked = is11plus;
+  const modeLabel = document.getElementById('mode-label');
+  if (modeLabel) modeLabel.textContent = is11plus ? '🎓 11+ Prep' : '⭐ StarLearn';
+}
+
 function setMode(mode) {
   currentMode = mode;
   localStorage.setItem('starlearn_mode', mode);
-  document.getElementById('btn-starlearn').classList.toggle('active', mode === 'starlearn');
-  document.getElementById('btn-11plus').classList.toggle('active', mode === '11plus');
   document.body.classList.toggle('mode-11plus', mode === '11plus');
-  document.querySelector('.header-logo').innerHTML = mode === '11plus' ? '<span>🎓</span> 11+ Prep' : '<span>⭐</span> StarLearn';
-  document.title = mode === '11plus' ? '11+ Prep - Free Grammar School Practice' : 'StarLearn ⭐ - Year 4-6 Learning Platform';
+  updateModeUI(mode);
   goHome();
+}
+
+function toggleMode(input) {
+  setMode(input.checked ? '11plus' : 'starlearn');
 }
 
 const FREE_MODELS = [
@@ -110,6 +121,8 @@ function renderHome() {
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
     card.setAttribute('onkeydown', "if(event.key==='Enter'||event.key===' '){this.click()}");
+    card.setAttribute('data-testid', 'subject-card');
+    card.setAttribute('data-subject', key);
     card.onclick = () => selectSubject(key);
 
     const best = getBestScore(key);
@@ -136,6 +149,7 @@ function renderTopics() {
     btn.className = 'topic-btn';
     btn.style.borderColor = subj.color;
     btn.style.color = subj.color;
+    btn.setAttribute('data-testid', 'topic-button');
     const best = getTopicBest(state.subject, i);
     const badge = best !== null ? `<span class="topic-badge" style="background:${subj.color}">${best}%</span>` : '';
     btn.innerHTML = `${topic.name} ${badge}`;
@@ -166,6 +180,8 @@ function renderQuestion() {
   q.options.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
+    btn.setAttribute('data-testid', 'quiz-option');
+    btn.setAttribute('data-index', i);
     btn.textContent = opt;
     btn.onclick = () => answerQuestion(i, btn, subj.color);
     optContainer.appendChild(btn);
@@ -234,7 +250,9 @@ function showResults() {
 
   document.getElementById('result-icon').textContent = subj.icon;
   document.getElementById('result-score').textContent = `${state.score} / ${total}`;
+  document.getElementById('result-score').setAttribute('data-testid', 'result-score');
   document.getElementById('result-pct').textContent = `${pct}%`;
+  document.getElementById('result-pct').setAttribute('data-testid', 'result-percentage');
   document.getElementById('result-pct').style.color = subj.color;
   document.getElementById('result-msg').textContent = getResultMessage(pct);
   document.getElementById('result-retry').style.background = subj.color;
@@ -537,10 +555,7 @@ window.onload = () => {
   // Restore saved mode
   if (currentMode === '11plus') {
     document.body.classList.add('mode-11plus');
-    document.getElementById('btn-11plus').classList.add('active');
-    document.getElementById('btn-starlearn').classList.remove('active');
-    document.querySelector('.header-logo').innerHTML = '<span>🎓</span> 11+ Prep';
-    document.title = '11+ Prep - Free Grammar School Practice';
+    updateModeUI('11plus');
   }
   renderHome();
   showScreen('home');
